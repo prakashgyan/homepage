@@ -1,0 +1,99 @@
+/* Ensure all elements have no padding or margin */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    /* Full page gradient background */
+    background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding-left: 5vw; /* Padding from the left for larger screens */
+    font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Container for the welcome text */
+.welcome-screen {
+    text-align: center;
+}
+
+/* Style for the welcome text */
+#welcome-text {
+    font-size: clamp(2rem, 5vw, 4rem); /* Default size for larger screens */
+    opacity: 0;
+    color: #000000;
+    transform: translateY(20px); /* Text starts slightly below */
+    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+
+    margin: 0;
+    line-height: 1.2;
+  
+}
+
+.welcome-text-visible {
+    opacity: 1; /* Fade in */
+    transform: translateY(0); /* Move into place */
+}
+
+@media screen and (max-width: 768px) {
+    body {
+        padding-left: 8vw; /* Increase left padding for smaller screens */
+    }
+
+    #welcome-text {
+        font-size: 3rem; /* Smaller text for medium screens */
+    }
+}
+
+/* For mobile phones (screen width 480px and below) */
+@media screen and (max-width: 480px) {
+    body {
+        padding-left: 10vw; /* Further increase left padding for mobiles */
+    }
+
+    #welcome-text {
+        font-size: 2rem; /* Even smaller text for small screens */
+    }
+}
+
+/* Container for the social links */
+.social-links {
+    opacity: 0;
+    display: flex;
+    gap: 1rem; /* Space between icons */
+    margin-top: 2rem; /* Space above the social icons */
+    transform: translateX(20px); /* Start slightly off to the right */
+    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out; /* Transition effects */
+
+}
+
+.social-links.visible {
+    opacity: 1; /* Fully visible */
+    transform: translateX(0); /* Move into place */
+}
+
+/* Style for individual social icons */
+.social-icon {
+    color: #000; /* Icon color */
+    font-size: 2rem; /* Size of the icons */
+    transition: color 0.3s ease; /* Smooth color transition on hover */
+}
+
+.social-icon:hover {
+    color: #0077b5; /* Color change on hover for LinkedIn (adjust as needed) */
+}
+
+/* Specific hover color for GitHub */
+.social-icon:nth-of-type(2):hover {
+    color: #333; /* GitHub icon color change on hover */
+}
+
+
