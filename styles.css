@@ -1,111 +1,122 @@
-/* Ensure all elements have no padding or margin */
+/* Reset and Global Styles */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-html, body {
+html {
     height: 100%;
-    font-family: 'Arial', sans-serif;
+    width: 100%;
+    background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
 }
 
 body {
-    position: relative; /* Create a stacking context */
-    margin: 0;
-    min-height: 100vh; /* Ensure body takes full viewport height */
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
     display: flex;
     justify-content: flex-start;
     align-items: center;
     padding-left: 5vw;
     font-family: "Helvetica Neue", Arial, sans-serif;
+    background: transparent;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
 }
 
-body::before {
-    content: '';
-    position: fixed; /* Stretches relative to the viewport */
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
-    z-index: -1; /* Keeps it behind your content */
+/* iOS specific background matching */
+@supports (-webkit-touch-callout: none) {
+    html, body {
+        background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+    }
 }
 
 /* Container for the welcome text */
-.welcome-screen {
-    text-align: center;
+.container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
-/* Style for the welcome text */
+/* Welcome Text Styling */
+.welcome-screen {
+    text-align: center;
+    width: 100%;
+}
+
 #welcome-text {
-    font-size: clamp(2rem, 5vw, 4rem); /* Default size for larger screens */
+    font-size: clamp(2rem, 5vw, 4rem);
     opacity: 0;
     color: #000000;
-    transform: translateY(20px); /* Text starts slightly below */
+    transform: translateY(20px);
     transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
-
     margin: 0;
     line-height: 1.2;
-  
 }
 
 .welcome-text-visible {
-    opacity: 1; /* Fade in */
-    transform: translateY(0); /* Move into place */
+    opacity: 1;
+    transform: translateY(0);
 }
 
-@media screen and (max-width: 768px) {
-    body {
-        padding-left: 8vw; /* Increase left padding for smaller screens */
-    }
-
-    #welcome-text {
-        font-size: 3rem; /* Smaller text for medium screens */
-    }
-}
-
-/* For mobile phones (screen width 480px and below) */
-@media screen and (max-width: 480px) {
-    body {
-        padding-left: 10vw; /* Further increase left padding for mobiles */
-    }
-
-    #welcome-text {
-        font-size: 2rem; /* Even smaller text for small screens */
-    }
-}
-
-/* Container for the social links */
+/* Social Links Styling */
 .social-links {
     opacity: 0;
     display: flex;
-    gap: 1rem; /* Space between icons */
-    margin-top: 2rem; /* Space above the social icons */
-    transform: translateX(20px); /* Start slightly off to the right */
-    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out; /* Transition effects */
-
+    gap: 1rem;
+    margin-top: 2rem;
+    transform: translateX(20px);
+    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
 }
 
 .social-links.visible {
-    opacity: 1; /* Fully visible */
-    transform: translateX(0); /* Move into place */
+    opacity: 1;
+    transform: translateX(0);
 }
 
-/* Style for individual social icons */
 .social-icon {
-    color: #000; /* Icon color */
-    font-size: 2rem; /* Size of the icons */
-    transition: color 0.3s ease; /* Smooth color transition on hover */
+    color: #000;
+    font-size: 2rem;
+    transition: color 0.3s ease;
 }
 
 .social-icon:hover {
-    color: #0077b5; /* Color change on hover for LinkedIn (adjust as needed) */
+    color: #0077b5;
 }
 
-/* Specific hover color for GitHub */
 .social-icon:nth-of-type(2):hover {
-    color: #333; /* GitHub icon color change on hover */
+    color: #333;
 }
 
+/* Responsive Adjustments */
+@media screen and (max-width: 768px) {
+    body {
+        padding-left: 8vw;
+    }
 
+    #welcome-text {
+        font-size: 3rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    body {
+        padding-left: 10vw;
+    }
+
+    #welcome-text {
+        font-size: 2rem;
+    }
+}
+
+/* Accessibility and Performance Enhancements */
+@media (prefers-reduced-motion: reduce) {
+    #welcome-text,
+        .social-links {
+            transition: none;
+    }
+}
