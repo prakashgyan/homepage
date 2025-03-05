@@ -11,13 +11,25 @@ html, body {
 }
 
 body {
-    /* Full page gradient background */
-    background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+    position: relative; /* Create a stacking context */
+    margin: 0;
+    min-height: 100vh; /* Ensure body takes full viewport height */
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    padding-left: 5vw; /* Padding from the left for larger screens */
+    padding-left: 5vw;
     font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+body::before {
+    content: '';
+    position: fixed; /* Stretches relative to the viewport */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+    z-index: -1; /* Keeps it behind your content */
 }
 
 /* Container for the welcome text */
