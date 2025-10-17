@@ -13,47 +13,42 @@ html {
     overscroll-behavior-x: none;
 }
 
+/* Body styles for full-bleed background and safe area padding */
 body {
     position: relative;
     min-height: 100vh;
     width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    padding-left: 5vw;
     font-family: 'Playfair Display', serif;
     background: transparent;
     overflow-x: hidden;
     overscroll-behavior-x: none;
+    /* Add padding to respect the safe area on devices with notches */
+    padding: env(safe-area-inset-top, 20px) env(safe-area-inset-right, 20px) env(safe-area-inset-bottom, 20px) env(safe-area-inset-left, 20px);
 }
 
-/* iOS specific background matching */
-@supports (-webkit-touch-callout: none) {
-    html, body {
-        background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
-    }
-}
-
-/* Container for the welcome text */
+/* Main container for centering the welcome text */
 .container {
     width: 100%;
+    height: 100vh; /* Full viewport height */
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    justify-content: flex-start; /* Align content to the left */
+    align-items: center; /* Center content vertically */
+    padding: 0 5vw; /* Maintain horizontal padding */
 }
 
 /* Welcome Text Styling */
 .welcome-screen {
-    text-align: center;
+    text-align: left; /* Change text alignment to left */
     width: 100%;
 }
 
 #welcome-text {
-    font-size: clamp(2rem, 5vw, 4rem);
+    font-size: clamp(3rem, 6vw, 5rem); /* Slightly larger font size */
+    font-weight: 700;
     opacity: 0;
     color: #000000;
     transform: translateY(20px);
-    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    transition: transform 0.6s ease-out, opacity 0.6s ease-out;
     margin: 0;
     line-height: 1.2;
 }
@@ -63,60 +58,64 @@ body {
     transform: translateY(0);
 }
 
-/* Social Links Styling */
+/* Social Links Styling - Positioned at top-left */
 .social-links {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 2rem); /* Position below status bar */
+    left: calc(env(safe-area-inset-left, 0px) + 2rem); /* Position with padding */
     opacity: 0;
     display: flex;
-    gap: 1rem;
-    margin-top: 2rem;
-    transform: translateX(20px);
-    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    gap: 1.5rem; /* Increased gap */
+    transform: translateY(-20px); /* Animate from above */
+    transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+    z-index: 10; /* Ensure links are on top */
 }
 
 .social-links.visible {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
 }
 
 .social-icon {
     color: #000;
-    font-size: 2rem;
-    transition: color 0.3s ease;
+    font-size: 1.5rem; /* Slightly smaller for top corner */
+    transition: color 0.3s ease, transform 0.3s ease;
 }
 
+/* Enhanced Hover Effects */
 .social-icon:hover {
+    transform: scale(1.15); /* Grow on hover */
+}
+
+.social-icon[href*="linkedin"]:hover {
     color: #0077b5;
 }
 
-.social-icon:nth-of-type(2):hover {
+.social-icon[href*="github"]:hover {
     color: #333;
 }
 
 /* Responsive Adjustments */
 @media screen and (max-width: 768px) {
-    body {
-        padding-left: 8vw;
-    }
-
     #welcome-text {
-        font-size: 3rem;
+        font-size: clamp(2.5rem, 10vw, 3.5rem);
     }
-}
-
-@media screen and (max-width: 480px) {
-    body {
-        padding-left: 10vw;
+    .social-links {
+        left: calc(env(safe-area-inset-left, 0px) + 1.5rem);
+        top: calc(env(safe-area-inset-top, 0px) + 1.5rem);
     }
-
-    #welcome-text {
-        font-size: 2rem;
+    .social-icon {
+        font-size: 1.25rem;
     }
 }
 
 /* Accessibility and Performance Enhancements */
 @media (prefers-reduced-motion: reduce) {
     #welcome-text,
-        .social-links {
-            transition: none;
+    .social-links {
+        transition: none;
+    }
+    .social-icon:hover {
+        transform: none;
     }
 }
