@@ -21,7 +21,7 @@ body {
     justify-content: flex-start;
     align-items: center;
     padding-left: 5vw;
-    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-family: 'Playfair Display', serif;
     background: transparent;
     overflow-x: hidden;
     overscroll-behavior-x: none;
