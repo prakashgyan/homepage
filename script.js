@@ -1,75 +1,256 @@
-const welcomeText = document.getElementById('welcome-text');
-const socialLinks = document.querySelector('.social-links');
-
-// List of "Welcome" in different languages
+/* --- CONFIGURATION --- */
 const languages = [
-    "Welcome",
-    "Willkommen",       // German
-    "ようこそ",          // Japanese
-    "स्वागत है",        // Hindi
-    "Bem-vindo",        // Portuguese
-    "Chào mừng",        // Vietnamese
-    "सुस्वागतम्",        // Sanskrit
-    "Bienvenida",       // Spanish
-    "Welkom",           // Dutch
-    "歡迎",             // Traditional Chinese
-    "مرحبا",            // Arabic
-    "Bienvenue",        // French
-    "Velkommen",        // Danish
-    "Добро пожаловать", // Russian
-    "환영합니다",        // Korean
-    "Välkommen",        // Swedish
-    "Tervetuloa",       // Finnish
-    "Kalimera",         // Greek
-    "Aloha",            // Hawaiian
-    "Benvenuto",        // Italian
-    "Hoşgeldiniz",      // Turkish
-    "Ciao",             // Italian
-    "Laipni lūdzam",    // Latvian
-    "Shalom",           // Hebrew
+    "Welcome", "Willkommen", "ようこそ", "Hello World", 
+    "print('Hi')", "console.log('Hey')", "Salut", "Hola",
+    "Namaste", "Nǐ Hǎo", "Ciao", "Olá", "Zdravstvuyte", 
+    "Salaam", "Annyeonghaseyo", "Hej", "Guten Tag", "Merhaba"
 ];
 
-let currentLanguageIndex = 0;
+/* --- TYPEWRITER EFFECT --- */
+const welcomeText = document.getElementById('welcome-text');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-// Function to trigger initial animations
-const animateElements = () => {
-    welcomeText.style.opacity = '1'; // Make the welcome text visible
-    welcomeText.style.transform = 'translateY(0)'; // Move it into place
+async function typeWriterLoop() {
+    let i = 0;
+    while (true) {
+        let word = languages[i % languages.length];
+        
+        // Typing
+        for (let j = 0; j <= word.length; j++) {
+            welcomeText.innerText = word.substring(0, j);
+            await sleep(150); // Typing speed
+        }
+        
+        await sleep(2000); // Wait after typing
 
-    // Show social links after a delay
-    setTimeout(() => {
-        socialLinks.classList.add('visible'); // Add the visible class
-    }, 1000); // Match this with the transition duration
-};
+        // Deleting
+        for (let j = word.length; j >= 0; j--) {
+            welcomeText.innerText = word.substring(0, j);
+            await sleep(100); // Deleting speed
+        }
+        
+        await sleep(500);
+        i++;
+    }
+}
+// Start the typewriter
+typeWriterLoop();
 
-// Function to show the welcome text
-const showWelcomeText = () => {
-    welcomeText.style.opacity = 1;
-    welcomeText.style.transform = "translateY(0)";
-};
 
-// Function to change the welcome text language
-const changeLanguage = () => {
-    let nextIndex;
-    do {
-        nextIndex = Math.floor(Math.random() * languages.length);
-    } while (nextIndex === currentLanguageIndex); // Ensure it's a new language
+/* --- NEURAL NETWORK & VISUALIZATION --- */
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+const body = document.body;
 
-    currentLanguageIndex = nextIndex;
+let width, height;
+let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 
-    welcomeText.style.opacity = 0;
-    welcomeText.style.transform = "translateY(20px)"; // Move down when fading out
+// Structure: 3 Input (R,G,B) -> 4 Hidden -> 1 Output (Score)
+class MicroNet {
+    constructor() {
+        // ---- hidden layer (4 neurons) ----
+        this.weights1 = [
+            [0.2126, 0.7152, 0.0722], // luminance
+            [1.0, 0.0, 0.0],          // R passthrough
+            [0.0, 1.0, 0.0],          // G passthrough
+            [0.0, 0.0, 1.0]           // B passthrough
+        ];
+        this.biases1 = [0, 0, 0, 0];
 
-    setTimeout(() => {
-        welcomeText.innerText = languages[currentLanguageIndex];
-        welcomeText.style.opacity = 1;
-        welcomeText.style.transform = "translateY(0)"; // Move back to normal when fading in
-    }, 500);
-};
+        // ---- output layer (1 neuron) ----
+        this.weights2 = [4.0, 0.0, 0.0, 0.0];
+        this.bias2 = -2.0;
 
-// Start the animations after DOM content is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    animateElements(); // Call the function to start animations
-    setTimeout(showWelcomeText, 500); // Delay to show the welcome text
-    setInterval(changeLanguage, 3500); // Change language every 3.5 seconds
+        // Init with zeros to prevent early render crashes
+        this.activations = { 
+            input: [0,0,0], 
+            hidden: [0,0,0,0], 
+            output: [0] 
+        };
+    }
+
+    relu(x) { return Math.max(0, x); }
+    sigmoid(x) { return 1 / (1 + Math.exp(-x)); }
+    
+    forward(r, g, b) {
+        // Safety: Ensure inputs are numbers
+        r = r || 0; g = g || 0; b = b || 0;
+        
+        this.activations.input = [r, g, b];
+        
+        // 1. Input -> Hidden
+        this.activations.hidden = this.weights1.map((weights, i) => {
+            let sum = this.biases1[i]; 
+            sum += r * weights[0] + g * weights[1] + b * weights[2];
+            return this.relu(sum);
+        });
+
+        // 2. Hidden -> Output
+        let sum = this.bias2;
+        this.weights2.forEach((w, i) => {
+             sum += w * this.activations.hidden[i];
+        });
+        
+        const score = this.sigmoid(sum);
+        this.activations.output = [score];
+
+        return this.activations.output;
+    }
+}
+
+const net = new MicroNet();
+
+/* --- RENDER LOOP --- */
+function resize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+}
+window.addEventListener('resize', resize);
+resize();
+
+window.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
 });
+
+function drawNet(activations, x, y, scale) {
+    if (!activations || !activations.input || !activations.hidden || !activations.output) return;
+
+    // Configuration
+    const layerGap = 180 * scale; 
+    const nodeGap = 70 * scale;
+    
+    // We have 3 layers: Input (3), Hidden (4), Output (1)
+    const layers = [
+        { name: 'RGB INPUT', count: 3, vals: activations.input },
+        { name: 'HIDDEN', count: 4, vals: activations.hidden },
+        { name: 'OUTPUT', count: 1, vals: activations.output }
+    ];
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.font = `${10 * scale}px 'Fira Code'`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Calculate positions first
+    const positions = layers.map((layer, lIdx) => {
+        const layerX = (lIdx - 1) * layerGap; // -Gap, 0, +Gap
+        return Array.from({length: layer.count}).map((_, nIdx) => {
+            const layerHeight = (layer.count - 1) * nodeGap;
+            const nodeY = (nIdx * nodeGap) - (layerHeight / 2);
+            // Safety: Ensure val is a number
+            let val = layer.vals[nIdx];
+            if (val === undefined || isNaN(val)) val = 0;
+            return { x: layerX, y: nodeY, val: val };
+        });
+    });
+
+    // Draw Connections
+    for (let l = 0; l < layers.length - 1; l++) {
+        const currentLayer = positions[l];
+        const nextLayer = positions[l+1];
+        
+        currentLayer.forEach(src => {
+            nextLayer.forEach(dst => {
+                ctx.beginPath();
+                ctx.moveTo(src.x, src.y);
+                ctx.lineTo(dst.x, dst.y);
+                // Simple opacity based on source activation
+                ctx.strokeStyle = `rgba(255,255,255,${src.val * 0.4})`;
+                ctx.lineWidth = 1 * scale;
+                ctx.stroke();
+            });
+        });
+    }
+
+    // Draw Nodes & Labels
+    positions.forEach((layerNodes, lIdx) => {
+        layerNodes.forEach((node) => {
+            // Node Circle
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, 22 * scale, 0, Math.PI * 2);
+            const b = Math.floor(node.val * 255);
+            ctx.fillStyle = `rgb(${b},${b},${b})`;
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2 * scale;
+            ctx.stroke();
+
+            // Value Text
+            ctx.fillStyle = node.val > 0.5 ? '#111' : '#fff';
+            ctx.fillText(node.val.toFixed(2), node.x, node.y);
+        });
+
+        // Layer Label
+        ctx.fillStyle = '#fff';
+        const topNode = layerNodes[0];
+        ctx.fillText(layers[lIdx].name, topNode.x, topNode.y - 45 * scale);
+    });
+
+    ctx.restore();
+}
+
+function animate() {
+    // 0. Safety check for dimensions
+    if (!width || !height) {
+        requestAnimationFrame(animate); 
+        return;
+    }
+
+    // 1. Calculate Background Color based on Mouse
+    // Map mouse X to Red/Green, Y to Blue roughly
+    let r = Math.floor((mouse.x / width) * 255);
+    let g = Math.floor((mouse.y / height) * 255);
+    let b = Math.floor(Math.sin(Date.now() * 0.0002) * 127 + 128); // Pulsing Blue (Slow)
+    
+    // Safety clamp 0-255
+    r = Math.max(0, Math.min(255, r));
+    g = Math.max(0, Math.min(255, g));
+
+    // 2. Fill Background
+    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+    ctx.fillRect(0,0,width,height);
+    
+    // 3. Run Neural Net Prediction
+    // Normalize 0-1
+    let outputs = net.forward(r/255, g/255, b/255); // returns [score]
+    let score = outputs[0];
+    
+    // 4. Update UI based on prediction
+    // score > 0.5 means "black", otherwise "white"
+    if (score > 0.5) {
+        body.style.color = '#111'; // Black Text
+    } else {
+        body.style.color = '#eee'; // White Text
+    }
+
+    // 5. Draw the Mini-Brain
+    // Responsive Positioning to avoid text overlap
+    let netX, netY, netScale;
+    
+    if (width > 1000) {
+        // Desktop: Right side, large
+        netX = width * 0.75;
+        netY = height / 2;
+        netScale = 1.3;
+    } else if (width > 600) {
+        // Tablet: Slightly smaller, still right
+        netX = width * 0.70;
+        netY = height / 2;
+        netScale = 1.0;
+    } else {
+        // Mobile: Center bottom, small
+        netX = width / 2;
+        netY = height * 0.75;
+        netScale = 0.6;
+    }
+
+    drawNet(net.activations, netX, netY, netScale);
+
+    requestAnimationFrame(animate);
+}
+
+animate();
