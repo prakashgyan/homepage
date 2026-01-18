@@ -231,21 +231,27 @@ function animate() {
     // Responsive Positioning to avoid text overlap
     let netX, netY, netScale;
     
-    if (width > 1000) {
-        // Desktop: Right side, large
+    // Check orientation
+    const isPortrait = height > width;
+    
+    if (!isPortrait && width > 1000) {
+        // Desktop Landscape: Right side, large
         netX = width * 0.75;
         netY = height / 2;
         netScale = 1.3;
-    } else if (width > 600) {
-        // Tablet: Slightly smaller, still right
+    } else if (!isPortrait && width > 600) {
+        // Tablet Landscape: Slightly smaller, still right
         netX = width * 0.70;
         netY = height / 2;
         netScale = 1.0;
     } else {
-        // Mobile: Center bottom, small
+        // Portrait / Mobile: Center bottom
         netX = width / 2;
-        netY = height * 0.75;
-        netScale = 0.6;
+        // Snap to bottom quarter, but closer to center (70% instead of 75%)
+        netY = height * 0.70;
+        // Scale down to fit width
+        netScale = Math.min(width, height) / 800; 
+        if(netScale < 0.5) netScale = 0.5; // Min size
     }
 
     drawNet(net.activations, netX, netY, netScale);

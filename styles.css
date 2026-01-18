@@ -100,3 +100,23 @@ body {
         max-width: 80vw;
     }
 }
+@media screen and (orientation: portrait) {
+    body {
+        flex-direction: column;
+        justify-content: flex-start;
+        padding-left: 0;
+        /* Push text down to ~35% of screen height to be closer to the neural net */
+        padding-top: 35vh;
+    }
+
+    .container {
+        max-width: 90vw;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    #welcome-text {
+        text-align: center;
+    }
+}
